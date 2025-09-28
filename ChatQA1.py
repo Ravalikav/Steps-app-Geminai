@@ -1,11 +1,13 @@
 import streamlit as st
-import os
 from typing import List, Literal
 from pydantic import BaseModel, Field, ValidationError
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
+from dotenv import load_dotenv
+import os
 
 @st.cache_resource
 def get_chain():
@@ -14,14 +16,13 @@ def get_chain():
         ("system", "You are Health Expert, who suggests the steps count each day to be done. Return steps count number only."),
         ("human", "Provide steps count for {question} ")
     ])
-    # prompt = ChatPromptTemplate.from_messages([
-    #     ("human", "{question}")
-    # ])
+
+    load_dotenv() # take environment variables from .env.
 
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
-        google_api_key='AIzaSyDc5Pm2FwT7G95R9W6k4xuA04rEdmeA5-o',
-        temperature=0
+        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        temperature=0.2
     )
     chain = prompt | llm 
     return chain
