@@ -65,7 +65,7 @@ with st.expander("Food Information"):
 
 if st.button("Submit"):
     if name:
-        text = f"customer of age {age}, and height of {height_feet} feet {height_inches} inches and would eat {bf}, {lunch}, {dinner} as breakfast, lunch and dinner"
+        text = f"customer of age {age}, and height of {height_feet} feet {height_inches} inches and weight {weight} and would eat {bf}, {lunch}, {dinner} as breakfast, lunch and dinner"
         response = on_send(text)
         st.subheader(f"Hey {name}, Please walk the total steps daily {response.content} Steps today to Stay active.")
     else:
