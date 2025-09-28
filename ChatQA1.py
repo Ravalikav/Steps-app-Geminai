@@ -1,0 +1,72 @@
+import streamlit as st
+import os
+from typing import List, Literal
+from pydantic import BaseModel, Field, ValidationError
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+@st.cache_resource
+def get_chain():
+    # Prompt Template
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are Health Expert, who suggests the steps count each day to be done. Return steps count number only."),
+        ("human", "Provide steps count for {question} ")
+    ])
+    # prompt = ChatPromptTemplate.from_messages([
+    #     ("human", "{question}")
+    # ])
+
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        google_api_key='AIzaSyDc5Pm2FwT7G95R9W6k4xuA04rEdmeA5-o',
+        temperature=0
+    )
+    chain = prompt | llm 
+    return chain
+
+## 1. Create a history session variable to maintain history
+# if "history" not in st.session_state:
+#     # st.write("History variable not there")
+#     st.session_state.history = []
+
+def get_llm_response(user_text: str) -> str:
+    chat = get_chain()
+    # your “no-config” invoke variant that keeps its own history
+    return chat.invoke({"question": user_text})
+
+
+## 3. Create a Function which writes append to history
+def on_send(text):
+    response = get_llm_response(text)
+    # st.rerun()
+    return response
+
+
+
+st.title("Steps Application")
+# Expander for personal details
+
+name = st.text_input("Enter your name:")
+age = st.slider("Select your age:", 0, 100, 25)
+
+# Expander for preferences
+
+with st.expander("BMI Details"):
+    weight = st.slider("weight:", 40, 150, 50)
+    st.subheader("Height")
+    height_feet = st.selectbox("Feet:", [1,2,3,4,5,6,7,8,9,10],4)
+    height_inches = st.selectbox("Inches:", [1,2,3,4,5,6,7,8,9,10],5)
+
+with st.expander("Food Information"):
+    bf = st.text_input("Break fast:")
+    lunch = st.text_input("Lunch:")
+    dinner = st.text_input("Dinner:")
+
+if st.button("Submit"):
+    text = f"customer of age {age}, and height of {height_feet} feet {height_inches} inches and would eat {bf}, {lunch}, {dinner} as breakfast, lunch and dinner"
+    response = on_send(text)
+    st.subheader(f"Hey {name}, Please walk {response.content} Steps today to Stay active.")
+
+
