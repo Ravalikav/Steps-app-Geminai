@@ -11,7 +11,7 @@ import os
 def get_chain():
     # Prompt Template
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are Health Expert, who suggests the steps count each day to be done. Return steps count number only."),
+        ("system", "You are Health Expert, who suggests the steps count each day to be done. Return steps count number only steps for today first and few suggestions on foods to have for daily health as per their age and BMI."),
         ("human", "Provide steps count for {question} ")
     ])
 
@@ -44,7 +44,7 @@ def on_send(text):
 
 
 
-st.title("Steps Application")
+st.title("Deit and Steps Manager")
 # Expander for personal details
 
 name = st.text_input("Enter your name:")
@@ -53,7 +53,7 @@ age = st.slider("Select your age:", 0, 100, 25)
 # Expander for preferences
 
 with st.expander("BMI Details"):
-    weight = st.slider("weight:", 40, 150, 50)
+    weight = st.slider("weight:", 0, 150, 50)
     st.subheader("Height")
     height_feet = st.selectbox("Feet:", [1,2,3,4,5,6,7,8,9,10],4)
     height_inches = st.selectbox("Inches:", [1,2,3,4,5,6,7,8,9,10],5)
@@ -64,8 +64,12 @@ with st.expander("Food Information"):
     dinner = st.text_input("Dinner:")
 
 if st.button("Submit"):
-    text = f"customer of age {age}, and height of {height_feet} feet {height_inches} inches and would eat {bf}, {lunch}, {dinner} as breakfast, lunch and dinner"
-    response = on_send(text)
-    st.subheader(f"Hey {name}, Please walk {response.content} Steps today to Stay active.")
+    if name:
+        text = f"customer of age {age}, and height of {height_feet} feet {height_inches} inches and would eat {bf}, {lunch}, {dinner} as breakfast, lunch and dinner"
+        response = on_send(text)
+        st.subheader(f"Hey {name}, Please walk the total steps daily {response.content} Steps today to Stay active.")
+    else:
+        st.subheader(f"Please enter your name")
+
 
 
